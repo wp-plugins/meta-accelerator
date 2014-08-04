@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mta Accelerator
 Description: meta query speed up accelerator
-Version: 0.1
+Version: 0.2
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -65,6 +65,9 @@ class meta_accelerator {
 		add_action("added_post_meta", array(&$this, "added_post_meta"), 10, 4);
 		add_action("deleted_post_meta", array(&$this, "deleted_post_meta"), 10, 4);
 		add_action('save_post', array(&$this, "save_post"), 9999, 3);
+		add_action('before_delete_post', array(&$this, "before_delete_post"), 9999, 1);
+
+
 
 		// 	do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value );
 		// 	do_action( "added_{$meta_type}_meta", $mid, $object_id, $meta_key, $_meta_value );
@@ -115,6 +118,26 @@ class meta_accelerator {
 			Posttype::insert_accelerated_table($post_ID, $post->post_type);
 		}
 	}
+
+	/**
+	 * ポスト削除に合わせて該当レコード削除
+	 *
+	 * @param $postid
+	 */
+	function before_delete_post( $postid ) {
+		if($postid == 0) {
+			// postがまだ未設定のため何もしない
+			return ;
+		}
+		$post = get_post($postid);
+		// post_type確認
+		if(Posttype::is_accelerated($post->post_type)) {
+			// 高速化対象
+			Posttype::delete_post_record($postid, $post->post_type);
+		}
+
+	}
+
 
 	/**
 	 * 登録されたメタ情報をacceleratorテーブルへ反映
@@ -546,7 +569,7 @@ if(!function_exists("meta_accelerator_log")) {
 			"ERROR" => 3
 		);
 
-		if($level_array["DETAIL"] <= $level_array[$level]) {
+		if($level_array["ERROR"] <= $level_array[$level]) {
 			if(mb_strlen($msg)< 800) {
 				error_log($_SERVER["SERVER_NAME"] . " : " . $level . " : " . $msg);
 			} else {

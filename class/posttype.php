@@ -235,7 +235,7 @@ class Posttype {
 					$insert_val = array_pop($val);
 				} else {
 					foreach($val as $val2) {
-						$insert_val .= "," . $val2;
+						$insert_val .= "\n\n" . $val2;
 					}
 				}
 			} else {
@@ -280,6 +280,20 @@ class Posttype {
 				$wpdb->query($sql);
 			}
 
+	}
+
+	/**
+	 * レコード削除
+	 *
+	 * @param $postid
+	 * @param $post_type
+	 */
+	static function delete_post_record($postid, $post_type) {
+		global $wpdb;
+		if(Posttype::is_accelerated($post_type)) {
+			$sql = $wpdb->prepare("delete from `" . Posttype::get_tablename($post_type) . "` where post_id = %d", $postid);
+			$wpdb->query($sql);
+		}
 	}
 
 	/**
@@ -402,13 +416,13 @@ class Posttype {
 			// キーを生成して処理
 			$this->array_cols_cnt[$post_type]++;
 			$this->array_cols[$post_type][$key] = $this->array_cols_cnt[$post_type];
-
+			$this->save_options();
 		} else {
 			// キーを生成して処理
 			$this->array_cols_cnt[$post_type] = 1;
 			$this->array_cols[$post_type] = array();
 			$this->array_cols[$post_type][$key] = $this->array_cols_cnt[$post_type];
-
+			$this->save_options();
 		}
 
 		return "col_" . $this->array_cols[$post_type][$key];
@@ -522,9 +536,11 @@ class Posttype {
 			while($posts->have_posts()) {
 				$posts->the_post();
 				$array_keys_temp = get_post_custom_keys();
-				foreach($array_keys_temp as $key) {
-					if(!isset($array_meta_keys[$key])) {
-						$array_meta_keys[$key] = true;
+				if(is_array($array_keys_temp)) {
+					foreach($array_keys_temp as $key) {
+						if(!isset($array_meta_keys[$key])) {
+							$array_meta_keys[$key] = true;
+						}
 					}
 				}
 			}

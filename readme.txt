@@ -4,7 +4,7 @@ Donate link:
 Tags: meta,meta_query,speedup,accelerator
 Requires at least: 3.9
 Tested up to: 3.9.1
-Stable tag: 0.1
+Stable tag: 0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,3 +41,6 @@ An answer to that question.
 == Upgrade notice ==
 0.1
  beta release
+0.2
+ bugs fix
+ 配列のメタ情報をカンマ区切りから改行2回区切りに変更
