@@ -4,7 +4,7 @@ Donate link:
 Tags: meta,meta_query,speedup,accelerator
 Requires at least: 3.9
 Tested up to: 3.9.1
-Stable tag: 0.2
+Stable tag: 0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,3 +45,5 @@ An answer to that question.
  bugs fix
  配列のメタ情報をカンマ区切りから改行2回区切りに変更
  管理画面上にメタテーブル上のフィールドの一覧を表示（とりあえず表示の必要があったため表示、デザインは未調整）
+0.3
+ bugs fix

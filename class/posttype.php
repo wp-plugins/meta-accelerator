@@ -399,6 +399,42 @@ class Posttype {
 		}
 	}
 
+
+	/**
+	 * ポストタイプテーブルにメタフィールドを追加する。
+	 * テーブルはある前提
+	 *
+	 * @param $post_type
+	 * @param $array_keys
+	 */
+	function add_col($key, $col_name, $post_type) {
+		meta_accelerator_log("add_col");
+		try {
+
+			global $wpdb;
+
+			//meta_accelerator_log($key);
+			// カラムの存在確認
+			$sql = "show columns from `" . Posttype::get_tablename($post_type) . "` where Field='" . $col_name . "'";
+			//meta_accelerator_log($sql);
+			$row = $wpdb->get_row($sql);
+			if($row) {
+				// すでに存在している
+				return true;
+			} else {
+				meta_accelerator_log("add_col $key $col_name");
+				// カラム追加
+				meta_accelerator_log("add_col: $post_type $key " . $col_name );
+				$sql = "alter table `" . Posttype::get_tablename($post_type) . "` add " . $col_name . " longtext;";
+				$wpdb->query($sql);
+			}
+
+		} catch(\Exception $e) {
+			throw $e;
+		}
+	}
+
+
 	/**
 	 * meta_keyからフィールド名を生成する。
 	 * マルチバイトを考慮しエンコードする。
@@ -412,16 +448,19 @@ class Posttype {
 
 		if(isset($this->array_cols[$post_type]) && isset($this->array_cols[$post_type][$key])) {
 			// すでにある
+			//$this->add_col($key, "col_" . $this->array_cols[$post_type][$key], $post_type);
 		} elseif($this->array_cols[$post_type]){
 			// キーを生成して処理
 			$this->array_cols_cnt[$post_type]++;
 			$this->array_cols[$post_type][$key] = $this->array_cols_cnt[$post_type];
+			$this->add_col($key, "col_" . $this->array_cols[$post_type][$key], $post_type);
 			$this->save_options();
 		} else {
 			// キーを生成して処理
 			$this->array_cols_cnt[$post_type] = 1;
 			$this->array_cols[$post_type] = array();
 			$this->array_cols[$post_type][$key] = $this->array_cols_cnt[$post_type];
+			$this->add_col($key, "col_" . $this->array_cols[$post_type][$key], $post_type);
 			$this->save_options();
 		}
 

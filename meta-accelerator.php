@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mta Accelerator
 Description: meta query speed up accelerator
-Version: 0.2
+Version: 0.3
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -89,6 +89,10 @@ class meta_accelerator {
 	// remove_posttype($post_type)
 
 	function remove_posttype() {
+		if(!current_user_can("10")) {
+			die(__('dont have permission.'));
+		}
+
 		if(Posttype::is_accelerated($_REQUEST["target"])) {
 			$posttype = Posttype::get_instance($_REQUEST["target"]);
 			$posttype->remove_posttype($_REQUEST["target"]);
@@ -404,7 +408,9 @@ class meta_accelerator {
 	 *
 	 */
 	function add_posttype() {
-		// todo: timeoutなしに
+		if(!current_user_can("10")) {
+			die(__('dont have permission.'));
+		}
 
 		try {
 			if($_REQUEST["batch_paged"]) {
