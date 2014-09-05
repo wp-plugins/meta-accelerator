@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mta Accelerator
 Description: meta query speed up accelerator
-Version: 0.3
+Version: 0.4
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/

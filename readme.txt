@@ -3,8 +3,8 @@ Contributors: Yuichiro ABE
 Donate link:
 Tags: meta,meta_query,speedup,accelerator
 Requires at least: 3.9
-Tested up to: 3.9.1
-Stable tag: 0.3
+Tested up to: 4.0
+Stable tag: 0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,3 +47,5 @@ An answer to that question.
  管理画面上にメタテーブル上のフィールドの一覧を表示（とりあえず表示の必要があったため表示、デザインは未調整）
 0.3
  bugs fix
+0.4
+ test at WordPress4.0
