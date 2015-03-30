@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mta Accelerator
 Description: meta query speed up accelerator
-Version: 0.5
+Version: 0.6
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -65,7 +65,10 @@ class meta_accelerator {
 		add_action("added_post_meta", array(&$this, "added_post_meta"), 10, 4);
 		add_action("deleted_post_meta", array(&$this, "deleted_post_meta"), 10, 4);
 		add_action('save_post', array(&$this, "save_post"), 9999, 3);
+
+
 		add_action('before_delete_post', array(&$this, "before_delete_post"), 9999, 1);
+		add_action('after_delete_post', array(&$this, "after_delete_post"), 9999, 1);
 
 
 
@@ -128,17 +131,27 @@ class meta_accelerator {
 	 *
 	 * @param $postid
 	 */
+	function after_delete_post( $postid ) {
+		if($postid == 0) {
+			// postがまだ未設定のため何もしない
+			return ;
+		}
+		// post_type確認
+		if(Posttype::is_accelerated($this->delete_target_postype)) {
+			// 高速化対象
+			Posttype::delete_post_record($postid, $this->delete_target_postype);
+		}
+
+	}
+
+	protected $delete_target_postype;
 	function before_delete_post( $postid ) {
 		if($postid == 0) {
 			// postがまだ未設定のため何もしない
 			return ;
 		}
 		$post = get_post($postid);
-		// post_type確認
-		if(Posttype::is_accelerated($post->post_type)) {
-			// 高速化対象
-			Posttype::delete_post_record($postid, $post->post_type);
-		}
+		$this->delete_target_postype = $post->post_type;
 
 	}
 
@@ -320,13 +333,39 @@ class meta_accelerator {
 		$join = $array_join_where["join"];
 		$where = $array_join_where["where"];
 
-		meta_accelerator_log("get_meta_sql : join: " . print_r($join, true));
-		meta_accelerator_log("get_meta_sql : where: " . print_r($where, true));
 		meta_accelerator_log("get_meta_sql : queries: " . print_r($queries, true));
 		meta_accelerator_log("get_meta_sql : type: " . print_r($type, true));
 
-		$array_join = explode( "\n", $join );
+		$array_join_1 = explode( "\n", $join );
+		$array_join = array();
+		foreach($array_join_1 as $str_join_1) {
+			$array_join_1 = explode( "INNER JOIN ", $str_join_1 );
+			if(count($array_join_1) > 2) {
+				// INNER JOINが2つ以上ある
+				foreach($array_join_1 as $str_join) {
+					if(trim($str_join) != '') {
+						$array_join[] = "INNER JOIN " . $str_join;
+					}
+				}
+			} else {
+				$array_join_1 = explode( "LEFT JOIN ", $str_join_1 );
+				if(count($array_join_1) > 2) {
+					// LEFT JOINが2つ以上ある
+					foreach($array_join_1 as $str_join) {
+						if(trim($str_join) != '') {
+							$array_join[] = "LEFT JOIN " . $str_join;
+						}
+					}
+				} else {
+					// joinは1つ
+					$array_join[] = $str_join_1;
+				}
+
+			}
+		}
 		$array_where = explode( "\n", $where );
+		meta_accelerator_log("get_meta_sql : join: " . print_r($array_join, true));
+		meta_accelerator_log("get_meta_sql : where: " . print_r($array_where, true));
 
 		// joinを整理
 		$array_replace_aliases = array();
@@ -352,7 +391,7 @@ class meta_accelerator {
 			}
 		}
 
-		meta_accelerator_log(print_r($array_left_key, true));
+		meta_accelerator_log('left_key' . print_r($array_left_key, true));
 
 		// joinを追加
 		$array_join[] = "INNER JOIN " . $obj_posttype->get_tablename($post_type) . " ON ($primary_table.$primary_id_column = " . $obj_posttype->get_tablename($post_type) . ".post_id) ";
@@ -377,6 +416,7 @@ class meta_accelerator {
 				}
 			}
 		}
+		meta_accelerator_log("get_meta_sql : array_where: " . print_r($array_where, true));
 
 		// 				$where["key-only-$key"] = $wpdb->prepare( "$meta_table.meta_key = %s", trim( $q['key'] ) );
 		// key-only
@@ -472,7 +512,7 @@ class meta_accelerator {
 	 * 管理画面CSS追加
 	 */
 	function head_css () {
-		if(isset($_REQUEST["page"]) && $_REQUEST["page"] == "meta_accelerator_admin.php") {
+		if($_REQUEST["page"] == "meta_accelerator_admin.php") {
 			wp_enqueue_style('wp-jquery-ui-dialog');
 			wp_enqueue_style('meta_accelerator_jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4 /themes/smoothness/jquery-ui.css');
 			wp_enqueue_style( "meta_accelerator_css", $this->get_plugin_url() . '/css/style.css');
