@@ -2,7 +2,7 @@
 /*
 Plugin Name: Meta Accelerator
 Description: meta query speed up accelerator
-Version: 0.6.3
+Version: 0.6.4
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -432,7 +432,11 @@ class meta_accelerator {
 				$str_tmp = substr($str_tmp, 0, strpos($str_tmp, "'"));
 
 				$this->_orderkey = $str_tmp;
-				$array_where[$key] = "AND ( 1=1 ";
+				if(strpos($current_where, "AND") !== false) {
+					$array_where[$key] = "AND ( 1=1 ";
+				} else {
+					$array_where[$key] = " 1=1 ";
+				}
 			}
 		}
 
