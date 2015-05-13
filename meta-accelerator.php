@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Mta Accelerator
+Plugin Name: Meta Accelerator
 Description: meta query speed up accelerator
-Version: 0.6
+Version: 0.6.1
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -512,7 +512,7 @@ class meta_accelerator {
 	 * 管理画面CSS追加
 	 */
 	function head_css () {
-		if($_REQUEST["page"] == "meta_accelerator_admin.php") {
+		if(isset($_REQUEST["page"]) && $_REQUEST["page"] == "meta_accelerator_admin.php") {
 			wp_enqueue_style('wp-jquery-ui-dialog');
 			wp_enqueue_style('meta_accelerator_jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4 /themes/smoothness/jquery-ui.css');
 			wp_enqueue_style( "meta_accelerator_css", $this->get_plugin_url() . '/css/style.css');
@@ -523,7 +523,7 @@ class meta_accelerator {
 	 * 管理画面JS追加
 	 */
 	function head_js () {
-		if($_REQUEST["page"] == "meta_accelerator_admin.php") {
+		if(isset($_REQUEST["page"]) && $_REQUEST["page"] == "meta_accelerator_admin.php") {
 			wp_enqueue_script( "jquery-ui-dialog");
 			wp_enqueue_script( "meta-accelerator_js", $this->get_plugin_url() . '/js/scripts.js', array("jquery"));
 		}
