@@ -2,7 +2,7 @@
 /*
 Plugin Name: Meta Accelerator
 Description: meta query speed up accelerator
-Version: 0.6.1
+Version: 0.6.2
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -36,8 +36,8 @@ require_once "class/posttype.php";
 require_once "functions.php";
 
 
-register_activation_hook( __FILE__, 'meta_accelerator_activate' );
-register_deactivation_hook( __FILE__, 'meta_accelerator_deactivate' );
+register_activation_hook( __FILE__, '\meta_accelerator\meta_accelerator_activate' );
+register_deactivation_hook( __FILE__, '\meta_accelerator\meta_accelerator_deactivate' );
 
 class meta_accelerator {
 
