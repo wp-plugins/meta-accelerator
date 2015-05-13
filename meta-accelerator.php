@@ -2,7 +2,7 @@
 /*
 Plugin Name: Meta Accelerator
 Description: meta query speed up accelerator
-Version: 0.6.2
+Version: 0.6.3
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -409,6 +409,9 @@ class meta_accelerator {
 
 					// 対象有り
 					$array_where[$key] = mb_ereg_replace($alias_key . "\.meta_value", $obj_posttype->get_tablename($post_type) . "." . $obj_posttype->get_col_name($meta_key), $array_where[$key]);
+						if($wpdb->postmeta == $alias_key) {
+							$this->_orderkey = $meta_key;
+						}
 					} elseif(mb_strpos($current_where, $alias_key . ".post_id IS NULL") !== false) {
 						// $array_left_key
 						$array_where[$key] = mb_ereg_replace($alias_key . "\.post_id IS NULL" , $obj_posttype->get_tablename($post_type) . "." . $obj_posttype->get_col_name($array_left_key[$alias_key]) . " IS NULL", $array_where[$key]);
@@ -423,15 +426,17 @@ class meta_accelerator {
 		foreach($array_where as $key => $current_where) {
 			if(strpos($current_where, "$wpdb->postmeta.meta_key") !== false) {
 				// キーオンリークエリ
-				$str_tmp = substr($current_where, 0, strrpos($current_where, "'"));
-				$str_tmp = substr($str_tmp, strrpos($str_tmp, "'")+1);
+				//$str_tmp = substr($current_where, 0, strrpos($current_where, "'"));
+				//$str_tmp = substr($str_tmp, strrpos($str_tmp, "'")+1);
+				$str_tmp = substr($current_where, strpos($current_where, "'")+1);
+				$str_tmp = substr($str_tmp, 0, strpos($str_tmp, "'"));
 
 				$this->_orderkey = $str_tmp;
 				$array_where[$key] = "AND ( 1=1 ";
 			}
 		}
 
-		meta_accelerator_log(print_r($array_join, true));
+		meta_accelerator_log("A" . print_r($array_join, true));
 		meta_accelerator_log(print_r($array_where, true));
 
 		$join = implode( "\n", $array_join );
@@ -625,6 +630,8 @@ if(!function_exists("meta_accelerator_log")) {
 				}
 			}
 		}
+
+		//print_r($msg);
 
 
 	}
