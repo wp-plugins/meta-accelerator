@@ -2,7 +2,7 @@
 /*
 Plugin Name: Meta Accelerator
 Description: meta query speed up accelerator
-Version: 0.6.4
+Version: 0.6.5
 Plugin URI: http://www.eyeta.jp/archives/1012
 Author: Eyeta Co.,Ltd.
 Author URI: http://www.eyeta.jp/
@@ -221,15 +221,15 @@ class meta_accelerator {
 	 * @param $context
 	 */
 	function posts_orderby( $orderby, $context) {
-		meta_accelerator_log("order by : $orderby : $this->_orderkey : $this->_query_posttype");
-
 		global $wpdb;
-		if($this->_orderkey != "") {
-			// キー差替え有り
+		meta_accelerator_log("order by : $orderby : $this->_orderkey : $this->_query_posttype");
+		$meta_clauses = $context->meta_query->get_clauses();
+		if ( ! empty( $meta_clauses ) ) {
+			$primary_meta_query = reset( $meta_clauses );
 			if(strpos($orderby, "$wpdb->postmeta.meta_value") !== false) {
 				// メタ並替え有り
 				$obj_posttype = Posttype::get_instance($this->_query_posttype);
-				$orderby = str_replace("$wpdb->postmeta.meta_value", $obj_posttype->get_tablename($this->_query_posttype) . "." . $obj_posttype->get_col_name($this->_orderkey), $orderby);
+				$orderby = str_replace("$wpdb->postmeta.meta_value", $obj_posttype->get_tablename($this->_query_posttype) . "." . $obj_posttype->get_col_name($primary_meta_query['key']), $orderby);
 			}
 		}
 		meta_accelerator_log("order by 2 : $orderby");
@@ -382,6 +382,13 @@ class meta_accelerator {
 					$array_replace_aliases[$wpdb->postmeta] = "inner";
 					unset($array_join[$key]);
 			} elseif(strpos($current_join, "LEFT JOIN $wpdb->postmeta AS") !== false) {
+				$len = strpos($current_join, " ON ") - strlen("LEFT JOIN $wpdb->postmeta AS ");
+				$array_replace_aliases[substr($current_join, strlen("LEFT JOIN $wpdb->postmeta AS "), $len)] = "left";
+				$str_tmp = substr($current_join, 0, strrpos($current_join, "'"));
+				$str_tmp = substr($str_tmp, strrpos($str_tmp, "'")+1);
+				$array_left_key[substr($current_join, strlen("LEFT JOIN $wpdb->postmeta AS "), $len)] =$str_tmp;
+				unset($array_join[$key]);
+			} elseif(strpos($current_join, "LEFT JOIN $wpdb->postmeta") !== false) {
 				$len = strpos($current_join, " ON ") - strlen("LEFT JOIN $wpdb->postmeta AS ");
 				$array_replace_aliases[substr($current_join, strlen("LEFT JOIN $wpdb->postmeta AS "), $len)] = "left";
 				$str_tmp = substr($current_join, 0, strrpos($current_join, "'"));
