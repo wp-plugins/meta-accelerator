@@ -475,7 +475,12 @@ class Posttype {
 			$post_type = $this->post_type;
 		}
 
-		return $this->array_cols[$post_type];
+		if(isset($this->array_cols[$post_type])) {
+			return $this->array_cols[$post_type];
+		} else {
+			return array();
+		}
+
 	}
 
 	/**

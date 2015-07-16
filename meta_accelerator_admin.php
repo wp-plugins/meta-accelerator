@@ -39,6 +39,7 @@ function meta_accelerator_admin() {
 					</tr>
 					<?php
 					$array_cols = $obj_posttype->get_cols();
+					if(is_array($array_cols)) {
 					foreach($array_cols as $key => $val) {
 ?>
 						<tr>
@@ -46,7 +47,7 @@ function meta_accelerator_admin() {
 							<td>col_<?php echo $val;?></td>
 						</tr>
 <?php
-					}
+					}}
 					?>
 				</table>
 			<?php
